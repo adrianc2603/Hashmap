@@ -16,7 +16,8 @@ typedef struct hashmap_t {
     int (*cmp)(void*, void*); // Pointer to the compare function 
 } hashmap_t;
 
-hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*));
+hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*), 
+    int capacity);
 
 node_t *create_node(void *k, void *v);
 
@@ -38,7 +39,4 @@ void **keys(hashmap_t *map);
 
 void **values(hashmap_t *map);
 
-/**
- * Free all memory associated with the map
- */
 void destroy_hashmap(hashmap_t *map);

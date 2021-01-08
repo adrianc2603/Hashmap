@@ -3,20 +3,20 @@
 /**
  * Initialise hashmap and all fields. Return a pointer to the map
  */
-hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*)) {
-    hashmap_t *map = malloc(sizeof(hashmap_t));
-    map->num_entries = 0;
-    map->capacity = 32; // Start with a capacity of 32. 
-    map->entries = malloc(sizeof(node_t*) * map->capacity);
+hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*), 
+    int capacity) {
+        hashmap_t *map = malloc(sizeof(hashmap_t));
+        map->num_entries = 0;
+        map->capacity = capacity; 
+        map->hash = hash;
+        map->cmp = cmp;
 
-    map->hash = hash;
-    map->cmp = cmp;
-
-    // Initalise entries as NULL 
-	for (int i = 0; i < map->capacity; i++) {
-		map->entries[i] = NULL;
-	}
-    return map;                        
+        // Initalise entries as NULL 
+        map->entries = malloc(sizeof(node_t*) * map->capacity);
+        for (int i = 0; i < map->capacity; i++) {
+            map->entries[i] = NULL;
+        }
+        return map;                        
 }
 
 /**
@@ -162,7 +162,7 @@ void *remove_entry(hashmap_t *map, void *k) {
 	node_t *current_node = map->entries[index];
 	node_t *prev_node = NULL;
 
-	while (current_node != NULL && map->cmp(current_node->key, k) != 1) {
+	while (current_node != NULL && map->cmp(current_node->key, k) != 0) {
 		prev_node = current_node;
 		current_node = current_node->next;
 	}
@@ -215,7 +215,7 @@ bool is_empty(hashmap_t *map) {
  * Time Complexity: O(n) average, O(n^2) worst case
  */
 node_t **entries(hashmap_t *map) {
-    if (map == NULL) {
+    if (map == NULL || is_empty(map)) {
         return NULL;
     }
 
@@ -241,7 +241,7 @@ node_t **entries(hashmap_t *map) {
  * Time Complexity: O(n) average, O(n^2) worst case
  */
 void **keys(hashmap_t *map) {
-    if (map == NULL) {
+    if (map == NULL || is_empty(map)) {
         return NULL;
     }
 
@@ -267,7 +267,7 @@ void **keys(hashmap_t *map) {
  * Time Complexity: O(n) average, O(n^2) worst case
  */
 void **values(hashmap_t *map) {
-    if (map == NULL) {
+    if (map == NULL || is_empty(map)) {
         return NULL;
     }
 
