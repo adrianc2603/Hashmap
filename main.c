@@ -2,6 +2,7 @@
  
 /**
  * Initialise hashmap and all fields. Return a pointer to the map
+ * Time Complexity: O(1)
  */
 hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*), 
     int capacity) {
@@ -21,6 +22,7 @@ hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*),
 
 /**
  * Create a new node with the given key and value. Return a pointer to it
+ * Time Complexity: O(1)
  */
 node_t *create_node(void *k, void *v) {
     node_t *new_node = malloc(sizeof(node_t)); 
@@ -32,6 +34,7 @@ node_t *create_node(void *k, void *v) {
 
 /**
  * Double the size of the hashmap
+ * Time Complexity: O(n) average, O(n^2) worst case
  */
 void resize_hashmap(hashmap_t *map) {
 
@@ -40,8 +43,9 @@ void resize_hashmap(hashmap_t *map) {
 	node_t **new_entries = malloc(sizeof(node_t*) * new_size);
 
 	// Add everything from map->entries into new_entries 
+    node_t *current_node = NULL;
 	for (int i = 0; i < map->capacity; i++) {
-		node_t *current_node = map->entries[i];
+		current_node = map->entries[i];
 		while (current_node != NULL) {
 
             // Get index in new hashmap
@@ -86,6 +90,7 @@ void resize_hashmap(hashmap_t *map) {
 /**
  * If the map has a node with key k, return its assosciated value.
  * Return NULL otherwise
+ * Time Complexity: O(1) average, O(n) worst case
  */
 void *get(hashmap_t *map, void *k) {
     if (map == NULL || k == NULL) {
@@ -111,6 +116,7 @@ void *get(hashmap_t *map, void *k) {
  * Insert node (k, v) into the map M. If the map has an entry with key k, 
  * remove it and return its associated value. Return NULL otherwise
  * Note: Collisions are dealt with using Separate Chaining
+ * Time Complexity: O(1) average, O(n) worst case. O(n^2) with resizing
  */
 void *put(hashmap_t *map, void *k, void *v) {
 	if (map == NULL || k == NULL || v == NULL) {
@@ -149,6 +155,7 @@ void *put(hashmap_t *map, void *k, void *v) {
 /**
  * If the map has a node with key k, remove it return its 
  * associated value. Otherwise, return NULL
+ * Time Complexity: O(1) average, O(n) worst case
  */
 void *remove_entry(hashmap_t *map, void *k) {
 	if (map == NULL || k == NULL) {
@@ -192,6 +199,7 @@ void *remove_entry(hashmap_t *map, void *k) {
 
 /**
  * Return the number of elements stored 
+ * Time Complexity: O(1)
  */
 int size(hashmap_t *map) {
     if (map == NULL) {
@@ -202,6 +210,7 @@ int size(hashmap_t *map) {
 
 /**
  * Return whether the map stored elements or not
+ * Time Complexity: O(1)
  */
 bool is_empty(hashmap_t *map) {
     if (map == NULL) {
@@ -290,6 +299,7 @@ void **values(hashmap_t *map) {
 
 /**
  * Free all memory associated with the map
+ * Time Complexity: O(n) average, O(n^2) worst case
  */
 void destroy_hashmap(hashmap_t *map) {
 	if (map == NULL) {
