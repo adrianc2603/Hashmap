@@ -21,6 +21,7 @@ hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*),
 }
 
 /**
+ * Helper function
  * Create a new node with the given key and value. Return a pointer to it
  * Time Complexity: O(1)
  */
@@ -33,6 +34,7 @@ node_t *create_node(void *k, void *v) {
 }
 
 /**
+ * Helper function
  * Double the size of the hashmap
  * Time Complexity: O(n) average, O(n^2) worst case
  */
@@ -53,7 +55,8 @@ void resize_hashmap(hashmap_t *map) {
 
             // No entry exists at the index
 			if (new_entries[index] == NULL) {
-				new_entries[index] = create_node(current_node->key, current_node->value);
+				new_entries[index] = create_node(current_node->key, 
+					current_node->value);
 			}	
 
             // Add new node to the end of the separate chain
@@ -62,7 +65,8 @@ void resize_hashmap(hashmap_t *map) {
 				while (last_node->next != NULL) {
                     last_node = last_node->next;
 				}
-                last_node->next = create_node(current_node->key, current_node->value);
+                last_node->next = create_node(current_node->key, 	
+					current_node->value);
 			}
 
 			current_node = current_node->next;
@@ -166,9 +170,11 @@ void *remove_entry(hashmap_t *map, void *k) {
 
 	size_t index = map->hash(k) % map->capacity;
 
+	// Find the entry
 	node_t *current_node = map->entries[index];
 	node_t *prev_node = NULL;
 
+	// Entry is located in the separate chain (not first item in chain)
 	while (current_node != NULL && map->cmp(current_node->key, k) != 0) {
 		prev_node = current_node;
 		current_node = current_node->next;

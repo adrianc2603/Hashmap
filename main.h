@@ -13,7 +13,7 @@ typedef struct hashmap_t {
     int capacity;
     int num_entries;
     size_t (*hash)(void*); // Pointer to the hash function
-    int (*cmp)(void*, void*); // Pointer to the compare function 
+    int (*cmp)(void*, void*); // Pointer to the comparison function 
 } hashmap_t;
 
 hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*), 
