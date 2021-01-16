@@ -1,0 +1,335 @@
+        -:    0:Source:main.c
+        -:    0:Graph:main.gcno
+        -:    0:Data:main.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "main.h"
+        -:    2: 
+        -:    3:/**
+        -:    4: * Initialise hashmap and all fields. Return a pointer to the map
+        -:    5: * Time Complexity: O(1)
+        -:    6: */
+        1:    7:hashmap_t *create_hashmap(size_t (*hash)(void*), int (*cmp)(void*, void*), 
+        -:    8:    int capacity) {
+        1:    9:        hashmap_t *map = malloc(sizeof(hashmap_t));
+        1:   10:        map->num_entries = 0;
+        1:   11:        map->capacity = capacity; 
+        1:   12:        map->hash = hash;
+        1:   13:        map->cmp = cmp;
+        -:   14:
+        -:   15:        // Initalise entries as NULL 
+        1:   16:        map->entries = malloc(sizeof(node_t*) * map->capacity);
+        7:   17:        for (int i = 0; i < map->capacity; i++) {
+        6:   18:            map->entries[i] = NULL;
+        -:   19:        }
+        1:   20:        return map;                        
+        -:   21:}
+        -:   22:
+        -:   23:/**
+        -:   24: * Helper function
+        -:   25: * Create a new node with the given key and value. Return a pointer to it
+        -:   26: * Time Complexity: O(1)
+        -:   27: */
+       14:   28:node_t *create_node(void *k, void *v) {
+       14:   29:    node_t *new_node = malloc(sizeof(node_t)); 
+       14:   30:    new_node->key = k;
+       14:   31:    new_node->value = v;
+       14:   32:    new_node->next = NULL;
+       14:   33:    return new_node;
+        -:   34:}
+        -:   35:
+        -:   36:/**
+        -:   37: * Helper function
+        -:   38: * Double the size of the hashmap
+        -:   39: * Time Complexity: O(n) average, O(n^2) worst case
+        -:   40: */
+        1:   41:void resize_hashmap(hashmap_t *map) {
+        -:   42:
+        -:   43:	// Create new entries 
+        1:   44:	int new_size = map->capacity * 2;
+        1:   45:	node_t **new_entries = malloc(sizeof(node_t*) * new_size);
+        -:   46:
+        -:   47:	// Add everything from map->entries into new_entries 
+        1:   48:    node_t *current_node = NULL;
+        7:   49:	for (int i = 0; i < map->capacity; i++) {
+        6:   50:		current_node = map->entries[i];
+       16:   51:		while (current_node != NULL) {
+        -:   52:
+        -:   53:            // Get index in new hashmap
+        4:   54:			size_t index = map->hash(current_node->key) % new_size;
+        -:   55:
+        -:   56:            // No entry exists at the index
+        4:   57:			if (new_entries[index] == NULL) {
+        3:   58:				new_entries[index] = create_node(current_node->key, 
+        -:   59:					current_node->value);
+        -:   60:			}	
+        -:   61:
+        -:   62:            // Add new node to the end of the separate chain
+        -:   63:			else {
+        1:   64:                node_t *last_node = new_entries[index];
+        2:   65:				while (last_node->next != NULL) {
+    #####:   66:                    last_node = last_node->next;
+        -:   67:				}
+        1:   68:                last_node->next = create_node(current_node->key, 	
+        -:   69:					current_node->value);
+        -:   70:			}
+        -:   71:
+        4:   72:			current_node = current_node->next;
+        -:   73:		}
+        -:   74:	}
+        -:   75:
+        -:   76:	// Remove everything from map entries
+        7:   77:	for (int i = 0; i < map->capacity; i++) {
+        6:   78:		node_t *current_node = map->entries[i];
+        6:   79:		node_t *next_node = NULL;
+        -:   80:
+       16:   81:		while (current_node != NULL) {
+        4:   82:			next_node = current_node->next;
+        4:   83:			free(current_node);
+        4:   84:			current_node = next_node;
+        -:   85:		}
+        -:   86:	}
+        -:   87:
+        -:   88:	// Replace map->entries with new_entries
+        1:   89:	free(map->entries);
+        1:   90:	map->entries = new_entries;
+        1:   91:	map->capacity = new_size;
+        1:   92:}
+        -:   93:
+        -:   94:/**
+        -:   95: * If the map has a node with key k, return its assosciated value.
+        -:   96: * Return NULL otherwise
+        -:   97: * Time Complexity: O(1) average, O(n) worst case
+        -:   98: */
+        6:   99:void *get(hashmap_t *map, void *k) {
+        6:  100:    if (map == NULL || k == NULL) {
+    #####:  101:        return NULL;
+        -:  102:    }
+        6:  103:    size_t index = map->hash(k) % map->capacity;
+        -:  104:
+        6:  105:    node_t *current_node = map->entries[index];
+        -:  106:
+       15:  107:	while (current_node != NULL && map->cmp(current_node->key, k) != 0) {
+        3:  108:		current_node = current_node->next;
+        -:  109:	}
+        -:  110:
+        -:  111:	// Return NULL if key does not exist
+        6:  112:	if (current_node == NULL) {
+    #####:  113:		return NULL;
+        -:  114:	}
+        -:  115:
+        6:  116:	return current_node->value;
+        -:  117:}
+        -:  118:
+        -:  119:/**
+        -:  120: * Insert node (k, v) into the map M. If the map has an entry with key k, 
+        -:  121: * remove it and return its associated value. Return NULL otherwise
+        -:  122: * Note: Collisions are dealt with using Separate Chaining
+        -:  123: * Time Complexity: O(1) average, O(n) worst case. O(n^2) with resizing
+        -:  124: */
+       10:  125:void *put(hashmap_t *map, void *k, void *v) {
+       10:  126:	if (map == NULL || k == NULL || v == NULL) {
+    #####:  127:		return NULL;
+        -:  128:	}
+        -:  129:
+        -:  130:    // Resize hashmap if num_elements is 66% of the capacity
+       10:  131:	float percentage_full = (float) map->num_entries / map->capacity * 100;
+       10:  132:	if (percentage_full >= 66) {
+        1:  133:		resize_hashmap(map);
+        -:  134:	}
+        -:  135:
+       10:  136:	size_t index = map->hash(k) % map->capacity;
+        -:  137:
+        -:  138:	// Remove node with key k if there is one
+       10:  139:	void *ret = remove_entry(map, k);
+        -:  140:
+        -:  141:	// If node is not already in the map
+       10:  142:	if (map->entries[index] == NULL) {
+        6:  143:		map->entries[index] = create_node(k, v);
+        -:  144:	}
+        -:  145:
+        -:  146:    // Add to chain of bucket in map (Separate Chaining)
+        -:  147:	else {
+        4:  148:		node_t *current_node = map->entries[index];
+       10:  149:		while (current_node->next != NULL) {
+        2:  150:			current_node = current_node->next;
+        -:  151:		}
+        4:  152:		current_node->next = create_node(k, v);
+        -:  153:	}
+        -:  154:
+       10:  155:	map->num_entries++;
+       10:  156:    return ret;
+        -:  157:}
+        -:  158:
+        -:  159:/**
+        -:  160: * If the map has a node with key k, remove it return its 
+        -:  161: * associated value. Otherwise, return NULL
+        -:  162: * Time Complexity: O(1) average, O(n) worst case
+        -:  163: */
+       16:  164:void *remove_entry(hashmap_t *map, void *k) {
+       16:  165:	if (map == NULL || k == NULL) {
+    #####:  166:		return NULL; 
+        -:  167:	}
+        -:  168:
+       16:  169:    void *removed_value = NULL;
+        -:  170:
+       16:  171:	size_t index = map->hash(k) % map->capacity;
+        -:  172:
+        -:  173:	// Find the entry
+       16:  174:	node_t *current_node = map->entries[index];
+       16:  175:	node_t *prev_node = NULL;
+        -:  176:
+        -:  177:	// Entry is located in the separate chain (not first item in chain)
+       39:  178:	while (current_node != NULL && map->cmp(current_node->key, k) != 0) {
+        7:  179:		prev_node = current_node;
+        7:  180:		current_node = current_node->next;
+        -:  181:	}
+        -:  182:
+        -:  183:	// Node with key k wasn't found
+       16:  184:	if (current_node == NULL) {
+        9:  185:		return NULL;
+        -:  186:	}
+        -:  187:
+        -:  188:	// Node with key k was head of the separate chain
+        7:  189:	if (prev_node == NULL) {
+        5:  190:        removed_value = map->entries[index]->value;
+        5:  191:		free(map->entries[index]);
+        5:  192:		map->entries[index] = current_node->next;
+        -:  193:	}	
+        -:  194:													
+        -:  195:	// Match was not head of the separate chain
+        -:  196:	else {
+        2:  197:        removed_value = prev_node->next->value;
+        2:  198:		free(prev_node->next);
+        2:  199:		prev_node->next = current_node->next;
+        -:  200:	}
+        -:  201:
+        7:  202:	map->num_entries--;
+        7:  203:    return removed_value;
+        -:  204:}
+        -:  205:
+        -:  206:/**
+        -:  207: * Return the number of elements stored 
+        -:  208: * Time Complexity: O(1)
+        -:  209: */
+       14:  210:int size(hashmap_t *map) {
+       14:  211:    if (map == NULL) {
+    #####:  212:        return 0;
+        -:  213:    }
+       14:  214:    return (map->num_entries);
+        -:  215:}
+        -:  216:
+        -:  217:/**
+        -:  218: * Return whether the map stored elements or not
+        -:  219: * Time Complexity: O(1)
+        -:  220: */
+       53:  221:bool is_empty(hashmap_t *map) {
+       53:  222:    if (map == NULL) {
+    #####:  223:        return 0;
+        -:  224:    }
+       53:  225:    return (map->num_entries == 0);
+        -:  226:}
+        -:  227:
+        -:  228:/**
+        -:  229: * Return an iterable collection of the entries in the map
+        -:  230: * Time Complexity: O(n) average, O(n^2) worst case
+        -:  231: */
+       13:  232:node_t **entries(hashmap_t *map) {
+       13:  233:    if (map == NULL || is_empty(map)) {
+        2:  234:        return NULL;
+        -:  235:    }
+        -:  236:
+       11:  237:    node_t **all_entries = malloc(sizeof(node_t*) * map->num_entries);
+       11:  238:    int insert_index = 0;
+       11:  239:    node_t *current_node = NULL;
+        -:  240:
+        -:  241:    // Add each entry into the new array, including the seperately chained ones
+      113:  242:    for (int i = 0; i < map->capacity; i++) {
+      102:  243:        current_node = map->entries[i];
+      237:  244:        while (current_node != NULL) {
+       33:  245:            all_entries[insert_index] = current_node; 
+       33:  246:            insert_index++;
+       33:  247:            current_node = current_node->next;
+        -:  248:        }
+        -:  249:    }
+        -:  250:
+       11:  251:    return all_entries;
+        -:  252:}
+        -:  253:
+        -:  254:/**
+        -:  255: * Return an iterable collection of the keys in the map
+        -:  256: * Time Complexity: O(n) average, O(n^2) worst case
+        -:  257: */
+       13:  258:void **keys(hashmap_t *map) {
+       13:  259:    if (map == NULL || is_empty(map)) {
+        2:  260:        return NULL;
+        -:  261:    }
+        -:  262:
+       11:  263:    void **all_keys = malloc(sizeof(node_t*) * map->num_entries);
+       11:  264:    int insert_index = 0;
+       11:  265:    node_t *current_node = NULL;
+        -:  266:
+        -:  267:    // Add each key into the new array, including the seperately chained ones
+      113:  268:    for (int i = 0; i < map->capacity; i++) {
+      102:  269:        current_node = map->entries[i];
+      237:  270:        while (current_node != NULL) {
+       33:  271:            all_keys[insert_index] = current_node->key; 
+       33:  272:            insert_index++;
+       33:  273:            current_node = current_node->next;
+        -:  274:        }
+        -:  275:    }
+        -:  276:
+       11:  277:    return all_keys;
+        -:  278:}
+        -:  279:
+        -:  280:/**
+        -:  281: * Return an iterable collection of the values in the map
+        -:  282: * Time Complexity: O(n) average, O(n^2) worst case
+        -:  283: */
+       13:  284:void **values(hashmap_t *map) {
+       13:  285:    if (map == NULL || is_empty(map)) {
+        2:  286:        return NULL;
+        -:  287:    }
+        -:  288:
+       11:  289:    void **all_values = malloc(sizeof(node_t*) * map->num_entries);
+       11:  290:    int insert_index = 0;
+       11:  291:    node_t *current_node = NULL;
+        -:  292:
+        -:  293:    // Add each value into the new array, including the seperately chained ones
+      113:  294:    for (int i = 0; i < map->capacity; i++) {
+      102:  295:        current_node = map->entries[i];
+      237:  296:        while (current_node != NULL) {
+       33:  297:            all_values[insert_index] = current_node->value; 
+       33:  298:            insert_index++;
+       33:  299:            current_node = current_node->next;
+        -:  300:        }
+        -:  301:    }
+        -:  302:
+       11:  303:    return all_values;
+        -:  304:}
+        -:  305:
+        -:  306:/**
+        -:  307: * Free all memory associated with the map
+        -:  308: * Time Complexity: O(n) average, O(n^2) worst case
+        -:  309: */
+        1:  310:void destroy_hashmap(hashmap_t *map) {
+        1:  311:	if (map == NULL) {
+    #####:  312:		return;
+        -:  313:	}
+        -:  314:
+        -:  315:    // Free all entries, including the separately chained ones
+       13:  316:	for (int i = 0; i < map->capacity; i++) {
+       12:  317:		node_t *current_node = map->entries[i];
+       12:  318:		node_t *next_node = NULL;
+        -:  319:
+        -:  320:        // Separately chained nodes
+       27:  321:		while (current_node != NULL) {
+        3:  322:			next_node = current_node->next;
+        3:  323:			free(current_node);
+        3:  324:			current_node = next_node;
+        -:  325:		}
+        -:  326:	}
+        -:  327:
+        1:  328:	free(map->entries);
+        1:  329:	free(map);	
+        -:  330:}
