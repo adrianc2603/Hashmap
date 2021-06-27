@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "main.h"
 
 /**
@@ -49,31 +50,13 @@ void print_map(hashmap_t *map) {
  */
 void check_all_entries_keys_values_null(hashmap_t *map) {
     node_t **all_entries = entries(map);
-    if (all_entries == NULL) {
-        printf("Entries is NULL because there are no entries\n"); // This should print
-    }
-    else {
-        printf("Entries isn't NULL, but it should be");
-        free(all_entries);
-    }
+    assert(all_entries == NULL);
 
     void **all_keys = keys(map);
-    if (all_keys == NULL) {
-        printf("Keys is NULL because there are no entries\n"); // This should print
-    }
-    else {
-        printf("Keys isn't NULL, but it should be");
-        free(all_keys);
-    }
+    assert(all_keys == NULL);
 
     void **all_values = values(map);
-    if (all_values == NULL) {
-        printf("Values is NULL because there are not entries\n"); // This should print
-    }
-    else {
-        printf("Values isn't NULL, but it should be");
-        free(all_values);
-    }
+    assert(all_values == NULL);
 }   
 
 /**
@@ -81,31 +64,13 @@ void check_all_entries_keys_values_null(hashmap_t *map) {
  */
 void check_all_entries_keys_values(hashmap_t *map) {
     node_t **all_entries = entries(map);
-    if (all_entries != NULL) {
-        printf("Entries is not NULL because there are entries in the map\n"); // This should print
-        free(all_entries);
-    }
-    else {
-        printf("Entries is NULL, but it shouldn't be");
-    }
+    assert(all_entries != NULL);
 
     void **all_keys = keys(map);
-    if (all_keys!= NULL) {
-        printf("Keys is not NULL because there are entries in the map\n"); // This should print
-        free(all_keys);
-    }
-    else {
-        printf("Keys is NULL, but it shouldn't be");
-    }
+    assert(all_keys != NULL);
 
     void **all_values = values(map);
-    if (all_values != NULL) {
-        printf("Values is not NULL because there are entries in the map\n"); // This should print
-        free(all_values);
-    }
-    else {
-        printf("Values is NULL, but it shouldn't be");
-    }
+    assert(all_values != NULL);
 }
 
 /**
@@ -130,8 +95,8 @@ void test_all_functions_regular_cases() {
     hashmap_t *map = create_hashmap(hash, cmp, 6);
 
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 0
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 1 (True)
+    assert(size(map) == 0);
+    assert(is_empty(map) == true);
     check_all_entries_keys_values_null(map);
 
     // Add Adrian 
@@ -139,8 +104,8 @@ void test_all_functions_regular_cases() {
     int *a_age = create_age(20);
     put(map, a_name, a_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 1
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 1);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
     
     // Add Eliza 
@@ -148,8 +113,8 @@ void test_all_functions_regular_cases() {
     int *b_age = create_age(19);
     put(map, b_name, b_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 2
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 2);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Add Michael
@@ -157,8 +122,8 @@ void test_all_functions_regular_cases() {
     int *c_age = create_age(20);
     put(map, c_name, c_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 3
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 3);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Replace Eliza
@@ -167,19 +132,19 @@ void test_all_functions_regular_cases() {
     int *d_age = create_age(20);
     int *old_eliza_age = put(map, d_name, d_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 3
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 3);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
-    printf("Old Eliza's age is %d\n", *(int*)(old_eliza_age)); // Old Eliza's age is 19
-    printf("New Eliza's age is %d\n", *(int*)(get(map, d_name))); // New Eliza's age is 20
+    assert(*(int*)(old_eliza_age) == 19);
+    assert(*(int*)(get(map, d_name)) == 20);
 
     // Add
     char *e_name = create_name("Adam");
     int *e_age = create_age(27);
     put(map, e_name, e_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 4
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 4);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Add John
@@ -188,8 +153,8 @@ void test_all_functions_regular_cases() {
     int *f_age = create_age(27);
     put(map, f_name, f_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 5
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 5);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Replace John
@@ -198,63 +163,63 @@ void test_all_functions_regular_cases() {
     int *g_age = create_age(28);
     int *old_john_age = put(map, g_name, g_age);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 5
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 5);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
-    printf("Old John's age is %d\n", *(int*)(old_john_age)); // Old John's age is 27
-    printf("New John's age is %d\n", *(int*)(get(map, g_name))); // New John's age is 28
+    assert(*(int*)(old_john_age) == 27);
+    assert(*(int*)(get(map, g_name)) == 28);
 
     // Check ages
-    printf("Adrian's age is %d\n", *(int*)(get(map, a_name))); // Adrian's age is 20
-    printf("Michael's age is %d\n", *(int*)(get(map, c_name))); // Michael's age is 20
-    printf("Eliza's age is %d\n", *(int*)(get(map, d_name))); // Eliza's age is 20
-    printf("Adams age is %d\n", *(int*)(get(map, e_name))); // Adams age is 27
+    assert(*(int*)(get(map, a_name)) == 20);
+    assert(*(int*)(get(map, c_name)) == 20);
+    assert(*(int*)(get(map, d_name)) == 20);
+    assert(*(int*)(get(map, e_name)) == 27);
 
     // Remove Michael
     printf("Removing Michael -- ");
-    printf("The removed age was %d\n", *(int*)(remove_entry(map, c_name))); // The removed age was 20
+    assert(*(int*)(remove_entry(map, c_name)) == 20);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 4
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 4);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Remove Adrian
     printf("Removing Adrian -- ");
-    printf("The removed age was %d\n", *(int*)(remove_entry(map, a_name))); // The removed age was 20
+    assert(*(int*)(remove_entry(map, a_name)) == 20);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 3
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 3);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Remove John
     printf("Removing John -- ");
-    printf("The removed age was %d\n", *(int*)(remove_entry(map, g_name))); // The removed age was 28
+    assert(*(int*)(remove_entry(map, g_name)) == 28);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 2
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 2);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Try to Remove John, will fail as he isn't in map
     printf("Trying to remove John again -- ");
-    printf("The removed age was %p because John isn't in the map\n", (remove_entry(map, g_name))); // The removed age was 0x0 (NULL) because John isn't in the map
+    assert(remove_entry(map, g_name) == NULL);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 2
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 2);
+    assert(is_empty(map) == false);
 
     // Remove Adam
     printf("Removing Adam -- ");
-    printf("The removed age was %d\n", *(int*)(remove_entry(map, e_name))); // The removed age was 27
+    assert(*(int*)(remove_entry(map, e_name)) == 27);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 1
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 0 (False)
+    assert(size(map) == 1);
+    assert(is_empty(map) == false);
     check_all_entries_keys_values(map);
 
     // Remove Eliza
     printf("Removing Eliza -- ");
-    printf("The removed age was %d\n", *(int*)(remove_entry(map, d_name))); // The removed age was 20
+    assert(*(int*)(remove_entry(map, d_name)) == 20);
     print_map(map);
-    printf("The size of the map is %d\n", size(map)); // The size of the map is 0
-    printf("Is the map empty? %d\n", is_empty(map)); // Is the map empty? 1 (True)
+    assert(size(map) == 0);
+    assert(is_empty(map) == true);
     check_all_entries_keys_values_null(map);
 
     // Add these to ensure destroy_hashmap frees nodes in map and map itself
@@ -263,6 +228,8 @@ void test_all_functions_regular_cases() {
     put(map, c_name, c_age);
     put(map, d_name, d_age);
     print_map(map);
+    assert(size(map) == 3);
+    assert(is_empty(map) == false);
 
     free(a_name);
     free(a_age);
