@@ -6,7 +6,8 @@
 /**
  * Hash function for each name
  */
-size_t hash(char *name) {
+size_t hash(void *n) {
+    char *name = (char*) n;
     int length = strnlen(name, 256);
     size_t hash_value = 0;
     for (int i = 0; i < length; i++) {
@@ -19,8 +20,8 @@ size_t hash(char *name) {
 /**
  * Compare function for each name
  */
-int cmp(char *name1, char *name2) {
-    return strcmp(name1, name2);
+int cmp(void *name1, void *name2) {
+    return strcmp((char*)name1, (char*)name2);
 }
 
 /**
