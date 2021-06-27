@@ -38,7 +38,7 @@ void print_map(hashmap_t *map) {
         printf("\t%i\t", i);
         node_t *tmp = map->entries[i];
         while (tmp != NULL) {
-            printf("%s - ", tmp->key);
+            printf("%s - ", (char*)tmp->key);
             tmp = tmp->next;
         }
         puts("");
@@ -72,6 +72,10 @@ void check_all_entries_keys_values(hashmap_t *map) {
 
     void **all_values = values(map);
     assert(all_values != NULL);
+
+    free(all_entries);
+    free(all_keys);
+    free(all_values);
 }
 
 /**

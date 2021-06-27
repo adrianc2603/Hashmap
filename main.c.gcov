@@ -212,22 +212,22 @@
         -:  207: * Return the number of elements stored 
         -:  208: * Time Complexity: O(1)
         -:  209: */
-       14:  210:int size(hashmap_t *map) {
-       14:  211:    if (map == NULL) {
+       15:  210:int size(hashmap_t *map) {
+       15:  211:    if (map == NULL) {
     #####:  212:        return 0;
         -:  213:    }
-       14:  214:    return (map->num_entries);
+       15:  214:    return (map->num_entries);
         -:  215:}
         -:  216:
         -:  217:/**
         -:  218: * Return whether the map stored elements or not
         -:  219: * Time Complexity: O(1)
         -:  220: */
-       53:  221:bool is_empty(hashmap_t *map) {
-       53:  222:    if (map == NULL) {
+       54:  221:bool is_empty(hashmap_t *map) {
+       54:  222:    if (map == NULL) {
     #####:  223:        return 0;
         -:  224:    }
-       53:  225:    return (map->num_entries == 0);
+       54:  225:    return (map->num_entries == 0);
         -:  226:}
         -:  227:
         -:  228:/**
